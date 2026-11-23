@@ -1,0 +1,8 @@
+# انسخ هذا الملف إلى .dev.vars للتطوير المحلي (لا يُرفع ولا يُنشر أبداً)
+ADMIN_EMAILS=you@gmail.com
+GOOGLE_CLIENT_ID=ضع-معرّف-العميل.apps.googleusercontent.com
+ADMIN_KEY=مفتاح-دخول-طويل-للتجربة
+SESSION_SECRET=نص-عشوائي-طويل-لا-يقل-عن-32-حرفاً
+# للاختبار الآلي فقط (npm test) — لا تضعه أبداً في الإنتاج:
+# GOOGLE_JWKS_URL=http://127.0.0.1:8799/certs
+# CATALOG_TTL=0

@@ -1,0 +1,21 @@
+name = "map-shop"
+compatibility_date = "2024-11-01"
+pages_build_output_dir = "public"      # فقط مجلد public يُنشر؛ lib/ و db/ و .dev.vars لا تُقدَّم للعامة أبداً
+
+[[d1_databases]]
+binding = "DB"
+database_name = "map-shop-db"
+database_id = "2d013917-ea45-44fd-af50-27f1bdbda5af"      # من:  npx wrangler d1 create map-shop-db
+
+# صور المنتجات: افتراضياً تُحفظ في D1 (لا تحتاج بطاقة دفع). لتفعيل R2 أزل التعليق بعد إنشاء الـ bucket:
+# [[r2_buckets]]
+# binding = "IMAGES"
+# bucket_name = "map-shop-images"
+
+[vars]
+ADMIN_EMAILS = "admin@gmail.com"                 # بريد/بريدات المدير (Gmail) مفصولة بفاصلة
+GOOGLE_CLIENT_ID = "ضع-معرّف-عميل-Google-هنا.apps.googleusercontent.com"
+
+# الأسرار (لا تُكتب هنا أبداً) تُضاف بالأمر:  npx wrangler pages secret put NAME
+#   ADMIN_KEY       مفتاح الدخول (العامل الثاني)
+#   SESSION_SECRET  نص عشوائي طويل لتوقيع الجلسات

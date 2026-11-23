@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>صيدلية الحداد التعليمية | الناصرية</title>
+  <meta name="description" content="موقع صيدلية الحداد التعليمية في الناصرية على الخريطة، مع المعالم القريبة وزر الوصول بالملاحة.">
+  <meta name="theme-color" content="#ffffff">
+  <!-- المشاركة (واتساب/تيليغرام/فيسبوك): بدّل DOMAIN باسم موقعك الفعلي مرة واحدة -->
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="ar_IQ">
+  <meta property="og:site_name" content="صيدلية الحداد التعليمية">
+  <meta property="og:title" content="صيدلية الحداد التعليمية | الناصرية">
+  <meta property="og:description" content="الموقع على الخريطة، المعالم القريبة، والمسار بالسيارة. قرب ماس مول - عمارة مكة سنتر.">
+  <meta property="og:url" content="https://DOMAIN/">
+  <meta property="og:image" content="https://DOMAIN/assets/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"Pharmacy","name":"صيدلية الحداد التعليمية","alternateName":"Al-Haddad Educational Pharmacy","telephone":"+9647812200554","image":"https://DOMAIN/assets/og.png","url":"https://DOMAIN/","address":{"@type":"PostalAddress","streetAddress":"قرب ماس مول - عمارة مكة سنتر","addressLocality":"الناصرية","addressRegion":"ذي قار","addressCountry":"IQ"},"geo":{"@type":"GeoCoordinates","latitude":31.04005724258767,"longitude":46.24170560412786}}
+  </script>
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <link rel="apple-touch-icon" href="assets/favicon.png">
+  <link rel="preload" href="fonts/cairo-arabic-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/fonts.css?v=9">
+  <link rel="stylesheet" href="vendor/leaflet/leaflet.css?v=9">
+  <link rel="stylesheet" href="css/style.css?v=9">
+  <link rel="stylesheet" href="css/shop.css?v=9">
+</head>
+<body>
+  <div id="app">
+    <div id="map" role="application" tabindex="-1"></div>
+
+    <div class="notice" id="notice" role="status" hidden>
+      <span id="noticeText"></span>
+      <button type="button" id="noticeX" aria-label="إغلاق التنبيه"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
+
+    <header class="topbar" id="topbar">
+      <div class="brand">
+        <img src="assets/emblem.png" alt="" width="28" height="28">
+        <h1 id="bizName"></h1>
+      </div>
+      <button type="button" id="langBtn" class="pill-btn" lang="en"></button>
+    </header>
+
+    <div class="controls" id="controls">
+      <div class="ctl-group zoom-group">
+        <button type="button" class="ctl" id="zoomInBtn" data-i18n-label="zoomIn">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+        <button type="button" class="ctl" id="zoomOutBtn" data-i18n-label="zoomOut">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg>
+        </button>
+      </div>
+      <button type="button" class="ctl ctl-solo" id="locateBtn" data-i18n-label="locate">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><circle cx="12" cy="12" r="7.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+      </button>
+      <button type="button" class="ctl ctl-solo" id="shareBtn" data-i18n-label="share">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3M7.5 7.5 12 3l4.5 4.5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>
+      </button>
+      <div class="ctl-wrap">
+        <button type="button" class="ctl ctl-solo" id="layersBtn" data-i18n-label="layers" aria-haspopup="true" aria-expanded="false" aria-controls="layersPop">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 3 8l9 5 9-5-9-5z"/><path d="m3 12.5 9 5 9-5"/><path d="m3 17 9 5 9-5"/></svg>
+        </button>
+        <div class="layers-pop" id="layersPop" role="menu" hidden></div>
+      </div>
+    </div>
+
+    <section class="info" id="info" aria-labelledby="bizName">
+      <div class="sheet-grip" id="sheetGrip" aria-hidden="true"><span></span></div>
+
+      <div class="main-view" id="mainView">
+      <div class="peek">
+        <img class="info-logo" src="assets/emblem.png" alt="" width="48" height="48">
+        <div class="peek-text">
+          <div class="chip-row"><span class="chip" id="infoCategory"></span><span class="status" id="openStatus" hidden></span></div>
+          <div class="addr"><span class="lbl" id="addrLabel"></span><span id="infoAddress"></span>
+            <button type="button" class="copy-btn" id="copyAddr"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15V6a2 2 0 0 1 2-2h8"/></svg></button></div>
+          <div class="dist" id="distRow" hidden><span id="distText"></span></div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <a class="btn-primary" id="navBtn" href="#" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 21 3l-8 18-2-8-8-2z"/></svg>
+          <span id="navLabel"></span>
+        </a>
+        <a class="btn-secondary" id="callBtn" href="#" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>
+        </a>
+        <a class="btn-secondary wa" id="waBtn" href="#" target="_blank" rel="noopener" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 3.5A11 11 0 0 0 3.2 17.1L2 22l5-1.3A11 11 0 1 0 20.5 3.5zM12 20.2a9 9 0 0 1-4.6-1.3l-.3-.2-3 .8.8-2.9-.2-.3A9 9 0 1 1 12 20.2zm5-6.7c-.3-.1-1.6-.8-1.9-.9s-.5-.1-.6.1-.7.9-.9 1.1-.3.2-.6.1a7.4 7.4 0 0 1-3.7-3.2c-.3-.5.3-.5.8-1.5a.5.5 0 0 0 0-.5l-.9-2.1c-.2-.5-.5-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.200 5.200 0 0 0 1.100 2.800 11.800 11.800 0 0 0 4.600 4.100c1.700.7 2.400.8 3.200.7a2.700 2.700 0 0 0 1.800-1.300 2.200 2.200 0 0 0 .2-1.300c-.1-.1-.3-.2-.6-.3z" fill="currentColor" stroke="none"/></svg>
+        </a>
+        <a class="btn-secondary" id="webBtn" href="#" target="_blank" rel="noopener" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg>
+        </a>
+      </div>
+
+      <button type="button" class="btn-outline" id="shopBtn" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 7h12l-1 13H7L6 7z"/><path d="M9 7V6a3 3 0 0 1 6 0v1"/></svg>
+        <span id="shopLabel"></span><b id="shopCount" hidden></b>
+      </button>
+
+      <div class="nearby" id="nearby">
+        <button type="button" class="nearby-toggle" id="nearbyToggle" aria-expanded="false" aria-controls="nearPanel">
+          <span id="nearbyLabel"></span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 15 6-6 6 6"/></svg>
+        </button>
+        <div class="near-panel" id="nearPanel" hidden>
+          <img class="store-photo" id="storePhoto" alt="" hidden loading="lazy">
+          <p class="desc" id="infoDesc"></p>
+          <ul class="near-list" id="nearList"></ul>
+          <a class="review-link" id="reviewLink" href="#" target="_blank" rel="noopener" hidden>★ <span id="reviewLabel"></span></a>
+        </div>
+      </div>
+      </div>
+    <div class="route-view" id="routeView" hidden>
+        <div class="rv-head">
+          <span class="rv-ico" id="rvIcon"></span>
+          <div class="rv-title"><strong id="rvName"></strong><span id="rvType"></span></div>
+          <button type="button" class="rv-close" id="rvClose">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+          </button>
+        </div>
+        <div class="rv-stats" aria-live="polite">
+          <div class="stat"><span class="k" id="rvTimeLbl"></span><span class="v" id="rvTime"></span></div>
+          <div class="stat alt"><span class="k" id="rvDistLbl"></span><span class="v" id="rvDist"></span></div>
+        </div>
+        <p class="rv-note" id="rvNote"></p>
+        <a class="btn-primary" id="rvPharmNav" href="#" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 21 3l-8 18-2-8-8-2z"/></svg>
+          <span id="rvPharmLabel"></span>
+        </a>
+        <a class="btn-link" id="rvNav" href="#" target="_blank" rel="noopener"><span id="rvNavLabel"></span></a>
+      </div>
+
+      <a class="credit" id="credit" href="https://instagram.com/blaze.iq" target="_blank" rel="noopener">
+        <span class="credit-logo"><img src="assets/blaze.svg" alt="Blaze" width="20" height="23"></span>
+        <span class="credit-text" id="creditText"></span>
+        <span class="credit-btn" id="creditBtn"></span>
+      </a>
+    </section>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </div>
+
+  <div id="loader" role="status">
+    <img src="assets/logo.png" alt="" width="333" height="178">
+    <div class="loader-bar" aria-hidden="true"><span></span></div>
+    <span class="sr-only" id="loaderText">جارٍ التحميل</span>
+  </div>
+
+  <noscript>
+    <p class="noscript">يتطلب هذا الموقع تفعيل JavaScript لعرض الخريطة. / This site requires JavaScript to display the map.</p>
+  </noscript>
+
+  <script>
+    /* شبكة أمان: إن لم تبدأ الخريطة خلال 10 ثوانٍ (نسخة قديمة مخزّنة أو خطأ في تحميل ملف) تظهر رسالة بدل التعليق */
+    setTimeout(function () {
+      var l = document.getElementById('loader');
+      if (!l || document.documentElement.hasAttribute('data-ready')) return;
+      l.innerHTML = '<div style="text-align:center;font-family:system-ui,Tahoma,sans-serif;padding:24px;line-height:1.8">' +
+        '<p style="margin:0 0 14px;font-size:1.05rem">تعذّر تحميل الخريطة. حدّث الصفحة لتحميل أحدث نسخة.<br><span dir="ltr" style="font-size:.85rem;color:#667689">Could not load the map. Please reload.</span></p>' +
+        '<button onclick="location.reload()" style="font:inherit;font-weight:700;padding:10px 26px;border:0;border-radius:12px;background:#1A8F83;color:#fff;cursor:pointer">تحديث / Reload</button></div>';
+    }, 10000);
+  </script>
+  <script src="vendor/leaflet/leaflet.js?v=9"></script>
+  <script src="js/routes.js?v=9"></script>
+  <script src="js/config.js?v=9"></script>
+  <script src="js/app.js?v=9"></script>
+  <script src="js/shop.js?v=9"></script>
+</body>
+</html>

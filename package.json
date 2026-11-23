@@ -1,0 +1,20 @@
+{
+  "name": "map-shop-platform",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler pages dev --port 8788",
+    "db:local": "wrangler d1 execute DB --local --file=db/schema.sql",
+    "db:remote": "wrangler d1 execute DB --remote --file=db/schema.sql",
+    "deploy": "wrangler pages deploy",
+    "test": "node tools/test.mjs",
+    "seed": "node tools/seed.mjs"
+  },
+  "devDependencies": {
+    "wrangler": "^3.99.0"
+  },
+  "dependencies": {
+    "qrcode-generator": "^2.0.4"
+  }
+}
