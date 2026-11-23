@@ -33,9 +33,9 @@ button { font: inherit; color: inherit; }
 #app { position: relative; height: 100vh; height: 100svh; overflow: hidden; background: #e9edf1; }
 body.has-home #app { height: calc(100vh - 76px); height: calc(100svh - 76px); }
 .topbtns { display: flex; align-items: center; gap: 8px; pointer-events: none; }
-.cart-pill { position: relative; display: grid; place-items: center; padding: 0; width: 44px; }
+.cart-pill { display: inline-flex; align-items: center; gap: 6px; padding: 0 14px; }
 .cart-pill svg { width: 21px; height: 21px; fill: none; stroke: var(--secondary); stroke-width: 2.1; stroke-linecap: round; stroke-linejoin: round; }
-.cart-pill b { position: absolute; top: -3px; inset-inline-end: -3px; min-width: 21px; height: 21px; padding: 0 5px; border-radius: 99px; background: var(--primary); color: #fff; font-size: .75rem; display: grid; place-items: center; border: 2px solid #fff; }
+.cart-pill b { min-width: 22px; height: 22px; padding: 0 6px; border-radius: 99px; background: var(--primary); color: #fff; font-size: .78rem; display: inline-grid; place-items: center; }
 #map { position: absolute; inset: 0; z-index: 0; direction: ltr; background: #e9edf1; font-family: var(--font); }
 #map.leaflet-container { font-family: var(--font); }
 

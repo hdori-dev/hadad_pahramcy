@@ -26,7 +26,7 @@
       yourInfo: 'بياناتك لإصدار الفاتورة', fName: 'الاسم الكامل', fPhone: 'رقم الهاتف', fAddr: 'العنوان', fAddrPh: 'المحافظة، المنطقة، أقرب نقطة دالة', recv: 'طريقة الاستلام', delivery: 'توصيل', pickup: 'استلام من الصيدلية',
       reqName: 'أدخل اسمك', reqPhone: 'أدخل رقم هاتف صحيح', reqAddr: 'أدخل عنوانك', makeInvoice: 'إنشاء الفاتورة', working: 'جارٍ إنشاء الفاتورة…', orderNo: 'رقم الطلب',
       ready: 'تم تجهيز طلبك', sendVia: 'أرسل الطلب عبر', viaWa: 'واتساب', viaIg: 'إنستغرام', dlPdf: 'تحميل الفاتورة PDF', sharePdf: 'مشاركة الفاتورة',
-      tipWa: 'ستفتح محادثة واتساب مع الطلب جاهزاً. أرفق ملف الفاتورة PDF لتأكيد أسرع.', tipIg: 'سيُنسخ نص الطلب تلقائياً؛ الصقه في محادثة إنستغرام.', igCopied: 'تم نسخ الطلب — الصقه في المحادثة',
+      tipWa: 'أرفق ملف الفاتورة في المحادثة لتأكيد أسرع.', tipIg: 'يُنسخ الطلب تلقائياً؛ الصقه في المحادثة.', igCopied: 'تم نسخ الطلب — الصقه في المحادثة',
       newOrder: 'إنهاء وطلب جديد', noChannel: 'لم يُضبط واتساب/إنستغرام للمتجر بعد. حمّل الفاتورة وتواصل معنا هاتفياً.', errGeneric: 'تعذّر إنشاء الطلب. حاول مرة أخرى.', offlineNote: 'لم يُحفظ الطلب في النظام (لا اتصال)، لكن الفاتورة جاهزة.',
       orderTitle: 'طلب جديد', name: 'الاسم', phone: 'الهاتف', addr: 'العنوان', products: 'المنتجات', totalL: 'الإجمالي', notes: 'ملاحظات', link: 'الرابط', mapLabel: 'الخريطة', pdfName: 'فاتورة', call: 'اتصل', orderNow: 'اطلب الآن',
       ctaT: 'جاهز للطلب؟', ctaS: 'اختر منتجاتك وأرسل الطلب إلى الصيدلية مباشرة عبر واتساب أو إنستغرام مع فاتورة مرتبة.', cats: 'الأقسام', off: 'خصم', ph: 'الاسم' },
@@ -38,7 +38,7 @@
       yourInfo: 'Your details for the invoice', fName: 'Full name', fPhone: 'Phone number', fAddr: 'Address', fAddrPh: 'City, area, nearest landmark', recv: 'Receiving', delivery: 'Delivery', pickup: 'Pickup from pharmacy',
       reqName: 'Enter your name', reqPhone: 'Enter a valid phone number', reqAddr: 'Enter your address', makeInvoice: 'Create invoice', working: 'Creating invoice…', orderNo: 'Order no.',
       ready: 'Your order is ready', sendVia: 'Send your order via', viaWa: 'WhatsApp', viaIg: 'Instagram', dlPdf: 'Download invoice PDF', sharePdf: 'Share invoice',
-      tipWa: 'WhatsApp opens with your order ready. Attach the invoice PDF for faster confirmation.', tipIg: 'The order text is copied automatically; paste it in the Instagram chat.', igCopied: 'Order copied — paste it in the chat',
+      tipWa: 'Attach the invoice PDF in the chat for faster confirmation.', tipIg: 'The order is copied; paste it in the chat.', igCopied: 'Order copied — paste it in the chat',
       newOrder: 'Finish & start new order', noChannel: 'WhatsApp/Instagram are not set up yet. Download the invoice and call us.', errGeneric: 'Could not create the order. Please try again.', offlineNote: 'Order was not saved (offline), but your invoice is ready.',
       orderTitle: 'New order', name: 'Name', phone: 'Phone', addr: 'Address', products: 'Products', totalL: 'Total', notes: 'Notes', link: 'Link', mapLabel: 'Map', pdfName: 'invoice', call: 'Call', orderNow: 'Order now',
       ctaT: 'Ready to order?', ctaS: 'Pick your products and send the order straight to the pharmacy on WhatsApp or Instagram, with a neat invoice.', cats: 'Categories', off: 'off', ph: 'Name' }
@@ -165,6 +165,7 @@
     var n = cartCount();
     [].forEach.call(document.querySelectorAll('[data-cart-count]'), function (b) { b.hidden = !n; b.textContent = loc(String(n)); });
     [].forEach.call(document.querySelectorAll('[data-cart-open]'), function (b) { b.setAttribute('aria-label', s('cart')); });
+    var cp = document.getElementById('cartPill'); if (cp) cp.hidden = !n;
     ensureBar();
     if (bar) { bar.hidden = !n || sheetOpen; if (n) { bar.textContent = ''; bar.append(h('span', { class: 'cb-n' }, loc(String(n))), h('span', { class: 'cb-t' }, s('viewCart')), h('b', {}, money(cartTotal()))); } }
   }
@@ -345,7 +346,7 @@
         h('div', { class: 'res-total' }, money(o.total))),
       btns.length ? h('p', { class: 'res-h' }, s('sendVia')) : h('p', { class: 'cart-warn' }, s('noChannel')),
       h('div', { class: 'sends' }, btns),
-      btns.length ? h('p', { class: 'res-tip' }, c.wa && c.ig ? s('tipWa') + ' ' + s('tipIg') : c.wa ? s('tipWa') : s('tipIg')) : null,
+      btns.length ? h('p', { class: 'res-tip' }, c.wa ? s('tipWa') : s('tipIg')) : null,
       h('div', { class: 'row2' }, dl, sh),
       h('button', { class: 'btn-link', type: 'button', onclick: function () { cart = {}; saveCart(); emit(); closeSheet(); } }, s('newOrder'))));
   }
@@ -378,31 +379,19 @@
   function mountHome(root) {
     function render() {
       if (!data || !data.products.length) { root.hidden = true; return; }
-      var c = contact(), avail = data.products.filter(function (p) { return p.available; });
-      var feat = avail.filter(function (p) { return p.featured; }); if (!feat.length) feat = avail.slice(0, 10);
-      var offers = avail.filter(function (p) { return discPct(p) > 0; }).sort(function (a, b) { return discPct(b) - discPct(a); }).slice(0, 10);
-      var cats = mainCats();
+      var c = contact(), cats = mainCats(), shown = data.products.slice(0, 6);
       root.hidden = false; root.textContent = '';
       if (!document.body.classList.contains('has-home')) { document.body.classList.add('has-home'); window.dispatchEvent(new Event('resize')); }
-      var cp = document.getElementById('cartPill'); if (cp) cp.hidden = false;
       root.append(
         h('div', { class: 'home-in' },
-          h('div', { class: 'home-head' },
-            h('div', {}, h('h2', {}, s('shop')), h('p', {}, loc(String(data.products.length)) + ' ' + s('results'))),
-            h('a', { class: 'home-all', href: '/shop/' }, s('viewAll'), ico('back'))),
-          cats.length ? h('nav', { class: 'catrow', 'aria-label': s('cats') },
-            h('a', { class: 'catchip all', href: '/shop/' }, s('all')),
-            cats.map(function (k) { return h('a', { class: 'catchip', href: '/shop/?c=' + k.id }, nm(k)); })) : null,
-          feat.length ? [h('h3', { class: 'sh-h' }, '★ ' + s('featuredT')), h('div', { class: 'hscroll' }, feat.slice(0, 10).map(function (p) { return card(p, true); }))] : null,
-          offers.length ? [h('h3', { class: 'sh-h' }, '🏷️ ' + s('offersT')), h('div', { class: 'hscroll' }, offers.map(function (p) { return card(p, true); }))] : null,
-          h('div', { class: 'cta' },
-            h('div', { class: 'cta-t' }, h('h3', {}, s('ctaT')), h('p', {}, s('ctaS'))),
-            h('div', { class: 'cta-b' },
-              h('a', { class: 'btn-go', href: '/shop/' }, ico('bag'), s('orderNow')),
-              c.wa ? h('a', { class: 'cta-ic wa', href: 'https://wa.me/' + c.wa, target: '_blank', rel: 'noopener', 'aria-label': 'WhatsApp' }, ico('wa')) : null,
-              c.ig ? h('a', { class: 'cta-ic ig', href: 'https://instagram.com/' + c.ig, target: '_blank', rel: 'noopener', 'aria-label': 'Instagram' }, ico('ig')) : null,
-              c.phone ? h('a', { class: 'cta-ic', href: 'tel:' + c.phone, 'aria-label': s('call') }, ico('phone')) : null)),
-          h('p', { class: 'home-foot' }, c.name + ' · ' + c.address)));
+          h('h2', { class: 'home-t' }, s('shop')),
+          cats.length ? h('nav', { class: 'catrow', 'aria-label': s('cats') }, cats.map(function (k) { return h('a', { class: 'catchip', href: '/shop/?c=' + k.id }, nm(k)); })) : null,
+          h('div', { class: 'pgrid' }, shown.map(function (p) { return card(p, false); })),
+          h('a', { class: 'btn-go home-all', href: '/shop/' }, s('viewAll') + ' (' + loc(String(data.products.length)) + ')'),
+          h('div', { class: 'home-contact' },
+            c.wa ? h('a', { class: 'cta-ic wa', href: 'https://wa.me/' + c.wa, target: '_blank', rel: 'noopener', 'aria-label': 'WhatsApp' }, ico('wa')) : null,
+            c.ig ? h('a', { class: 'cta-ic ig', href: 'https://instagram.com/' + c.ig, target: '_blank', rel: 'noopener', 'aria-label': 'Instagram' }, ico('ig')) : null,
+            c.phone ? h('a', { class: 'cta-ic', href: 'tel:' + c.phone, 'aria-label': s('call') }, ico('phone')) : null)));
     }
     onChange(render);
     document.addEventListener('sitelangchange', function () { render(); updateCartUI(); });
