@@ -125,7 +125,7 @@
 
   /* ================= الهيكل والتنقل ================= */
   const state = { cats: [], statDays: 7, pf: { q: '', category: '', featured: false } };
-  const VIEWS = { overview: ['نظرة عامة', viewOverview], products: ['المنتجات', viewProducts], categories: ['الأقسام', viewCategories], settings: ['الإعدادات', viewSettings] };
+  const VIEWS = { overview: ['نظرة عامة', viewOverview], products: ['المنتجات', viewProducts], orders: ['الطلبات', viewOrders], categories: ['الأقسام', viewCategories], settings: ['الإعدادات', viewSettings] };
 
   async function boot() {
     const me = await api('/api/admin/me');
@@ -375,6 +375,33 @@
     for (let r = 0; r < n; r++) for (let k = 0; k < n; k++) if (qr.isDark(r, k)) g.fillRect((k + margin) * cell, (r + margin) * cell, cell, cell);
     return c;
   }
+
+  /* ================= الطلبات ================= */
+  const ST = { new: ['جديد', '#1F5FBF'], preparing: ['قيد التجهيز', '#B7791F'], done: ['تم التسليم', '#1A8F83'], cancelled: ['ملغي', '#B4452F'] };
+  async function viewOrders() {
+    const { orders } = await api('/api/admin/orders');
+    const v = $('#view'); v.textContent = '';
+    if (!orders.length) { v.append(h('div', { class: 'card' }, h('div', { class: 'empty', text: 'لا توجد طلبات بعد. ستظهر هنا الطلبات التي ينشئها الزبائن من المتجر.' }))); return; }
+    const when = ts => new Date(ts * 1000).toLocaleString('ar-IQ', { dateStyle: 'medium', timeStyle: 'short' });
+    const list = h('div', { class: 'card' });
+    for (const o of orders) {
+      const sel = h('select', { 'aria-label': 'حالة الطلب' }, Object.entries(ST).map(([k, [lbl]]) => h('option', { value: k, selected: o.status === k }, lbl)));
+      sel.addEventListener('change', async () => { try { await api('/api/admin/orders/' + o.id, { method: 'PATCH', body: { status: sel.value } }); toast('تم تحديث الحالة'); } catch (e) { toast(e.message, true); } });
+      const det = h('div', { class: 'o-det', hidden: true },
+        h('div', { text: 'العنوان: ' + o.address }), h('div', { text: 'الاستلام: ' + (o.method === 'pickup' ? 'من الصيدلية' : 'توصيل') }),
+        o.note ? h('div', { text: 'ملاحظات: ' + o.note }) : null,
+        h('ul', {}, o.items.map(i => h('li', { text: `${i.name} × ${nf(i.qty)} — ${money(i.price * i.qty)}` }))),
+        h('div', {}, h('button', { class: 'btn sm danger', type: 'button', onclick: async () => { if (await confirmBox('حذف الطلب #' + nf(o.code) + ' نهائياً؟')) { try { await api('/api/admin/orders/' + o.id, { method: 'DELETE' }); toast('تم الحذف'); route(); } catch (e) { toast(e.message, true); } } } }, 'حذف الطلب')));
+      list.append(h('div', { class: 'o-row' },
+        h('div', { class: 'o-top' },
+          h('strong', { text: '#' + nf(o.code) }), h('span', { class: 'muted', text: when(o.created_at) }),
+          h('span', { text: o.customer_name }), h('a', { href: 'tel:' + o.phone, dir: 'ltr', text: o.phone }),
+          h('b', { text: money(o.total) + ' د.ع' }), sel,
+          h('button', { class: 'btn sm', type: 'button', onclick: () => { det.hidden = !det.hidden; } }, 'التفاصيل')),
+        det));
+    }
+    v.append(list);
+  }
   async function viewSettings() {
     const { settings: s } = await api('/api/admin/settings');
     const v = $('#view'); v.textContent = '';
@@ -386,13 +413,14 @@
       notice: h('input', { type: 'text', value: s.notice || '', maxlength: 160, placeholder: 'مثال: مغلق يوم الجمعة بمناسبة العيد' }),
       review_url: h('input', { type: 'url', value: s.review_url || '', dir: 'ltr', placeholder: 'https://g.page/r/…' }),
       currency_label: h('input', { type: 'text', value: s.currency_label || 'د.ع', maxlength: 12 }),
+      instagram: h('input', { type: 'text', value: s.instagram || '', dir: 'ltr', maxlength: 60, placeholder: 'username (بلا @)' }),
       order_greeting: h('input', { type: 'text', value: s.order_greeting || '', maxlength: 200, placeholder: 'مثال: مرحباً، أود طلب المنتجات التالية:' })
     };
     const save = h('button', { class: 'btn primary', type: 'button' }, 'حفظ الإعدادات');
     save.addEventListener('click', async () => {
       save.disabled = true;
       try {
-        await api('/api/admin/settings', { method: 'PUT', body: { phone: F.phone.value, whatsapp: F.whatsapp.value, hours_open: F.hours_open.value, hours_close: F.hours_close.value, notice_active: F.notice_active.checked, notice: F.notice.value, review_url: F.review_url.value, currency_label: F.currency_label.value, order_greeting: F.order_greeting.value } });
+        await api('/api/admin/settings', { method: 'PUT', body: { phone: F.phone.value, whatsapp: F.whatsapp.value, hours_open: F.hours_open.value, hours_close: F.hours_close.value, notice_active: F.notice_active.checked, notice: F.notice.value, review_url: F.review_url.value, currency_label: F.currency_label.value, order_greeting: F.order_greeting.value, instagram: F.instagram.value } });
         toast('تم حفظ الإعدادات. تظهر للزبائن خلال دقيقة.');
       } catch (e) { toast(e.message, true); } finally { save.disabled = false; }
     });
@@ -410,6 +438,7 @@
         h('div', { class: 'grid2' }, h('label', { class: 'field' }, h('span', { text: 'رقم الهاتف (زر الاتصال)' }), F.phone), h('label', { class: 'field' }, h('span', { text: 'رقم واتساب (للطلبات)' }), F.whatsapp, h('small', { text: 'بصيغة دولية بلا صفر: 9647812200554' })),
           h('label', { class: 'field' }, h('span', { text: 'يفتح الساعة' }), F.hours_open), h('label', { class: 'field' }, h('span', { text: 'يغلق الساعة' }), F.hours_close)),
         h('small', { class: 'muted', text: 'اترك الوقتين فارغين لإخفاء شارة «مفتوح الآن». بتوقيت بغداد.' }),
+        h('label', { class: 'field' }, h('span', { text: 'حساب إنستغرام (لاستقبال الطلبات)' }), F.instagram, h('small', { text: 'اسم المستخدم فقط، مثال: haddad.pharmacy — يظهر زر «إرسال عبر إنستغرام» للزبائن' })),
         h('label', { class: 'field' }, h('span', { text: 'رابط تقييم جوجل (اختياري)' }), F.review_url)),
       h('div', { class: 'card form-card' }, h('h3', { text: 'شريط تنبيه أعلى الصفحة' }),
         h('label', { class: 'check' }, F.notice_active, 'إظهار التنبيه للزبائن'), h('label', { class: 'field' }, h('span', { text: 'نص التنبيه' }), F.notice)),

@@ -38,3 +38,9 @@
 
 /api/*
   X-Robots-Tag: noindex
+
+/shop/*
+  Cache-Control: no-cache
+
+/shop
+  Cache-Control: no-cache

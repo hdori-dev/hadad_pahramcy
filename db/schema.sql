@@ -66,3 +66,26 @@ CREATE INDEX IF NOT EXISTS idx_events_day ON events(day, type);
 CREATE TABLE IF NOT EXISTS login_attempts (ip_hash TEXT NOT NULL, ts INTEGER NOT NULL);
 CREATE INDEX IF NOT EXISTS idx_attempts ON login_attempts(ip_hash, ts);
 CREATE TABLE IF NOT EXISTS login_nonces (nonce TEXT PRIMARY KEY, exp INTEGER NOT NULL);
+
+-- الطلبات (تُحفظ عند إنشاء الفاتورة؛ الأسعار تُحسب من قاعدة البيانات لا من المتصفح)
+CREATE TABLE IF NOT EXISTS orders (
+  id            INTEGER PRIMARY KEY AUTOINCREMENT,
+  created_at    INTEGER NOT NULL DEFAULT (unixepoch()),
+  customer_name TEXT NOT NULL,
+  phone         TEXT NOT NULL,
+  address       TEXT NOT NULL,
+  method        TEXT NOT NULL DEFAULT 'delivery',   -- delivery | pickup
+  note          TEXT NOT NULL DEFAULT '',
+  channel       TEXT NOT NULL DEFAULT '',           -- whatsapp | instagram | pdf
+  total         INTEGER NOT NULL,
+  status        TEXT NOT NULL DEFAULT 'new'         -- new | preparing | done | cancelled
+);
+CREATE INDEX IF NOT EXISTS idx_orders_created ON orders(created_at);
+CREATE TABLE IF NOT EXISTS order_items (
+  order_id   INTEGER NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+  product_id INTEGER,
+  name       TEXT NOT NULL,
+  qty        INTEGER NOT NULL,
+  price      INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_oi_order ON order_items(order_id);

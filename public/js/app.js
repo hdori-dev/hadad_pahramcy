@@ -68,7 +68,7 @@
 
   /* ---------- الجزء المرئي من الخريطة (بين الترويسة والبطاقة) ---------- */
   function visibleRect() {
-    var W = window.innerWidth, H = window.innerHeight;
+    var W = window.innerWidth, H = $('app') ? $('app').clientHeight : window.innerHeight;
     var r = { l: 0, t: 0, r: W, b: H };
     var head = $('topbar').getBoundingClientRect();
     var card = $('info').getBoundingClientRect();
@@ -311,7 +311,7 @@
     var b = L.latLngBounds(coords);
     map.flyToBounds(b, {
       paddingTopLeft: [v.l + 50, v.t + 190],
-      paddingBottomRight: [(window.innerWidth - v.r) + 50, (window.innerHeight - v.b) + 60],
+      paddingBottomRight: [(window.innerWidth - v.r) + 50, (($('app') ? $('app').clientHeight : window.innerHeight) - v.b) + 60],
       maxZoom: 18, duration: reduceMotion ? 0 : 0.8, animate: !reduceMotion
     });
   }
@@ -660,7 +660,7 @@
       var bounds = L.latLngBounds([userLatLng, mainLatLng]);
       map.flyToBounds(bounds, {
         paddingTopLeft: [v.l + 40, v.t + 40],
-        paddingBottomRight: [(window.innerWidth - v.r) + 40, (window.innerHeight - v.b) + 40],
+        paddingBottomRight: [(window.innerWidth - v.r) + 40, (($('app') ? $('app').clientHeight : window.innerHeight) - v.b) + 40],
         maxZoom: 17, duration: reduceMotion ? 0 : 0.9, animate: !reduceMotion
       });
       loadUserRoute();
