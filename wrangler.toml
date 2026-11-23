@@ -13,7 +13,7 @@ database_id = "2d013917-ea45-44fd-af50-27f1bdbda5af"      # من:  npx wrangler 
 # bucket_name = "map-shop-images"
 
 [vars]
-ADMIN_EMAILS = "admin@gmail.com"                 # بريد/بريدات المدير (Gmail) مفصولة بفاصلة
+ADMIN_EMAILS = "hdori.dev@gmail.com"                 # بريد/بريدات المدير (Gmail) مفصولة بفاصلة
 GOOGLE_CLIENT_ID = "35981417753-lu2qmkpndjfa00gr8dl01vhtdu5m5cif.apps.googleusercontent.com"
 
 # الأسرار (لا تُكتب هنا أبداً) تُضاف بالأمر:  npx wrangler pages secret put NAME
