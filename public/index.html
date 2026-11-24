@@ -25,10 +25,10 @@
   <link rel="preload" href="fonts/cairo-arabic-600-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="css/fonts.css?v=9">
   <link rel="stylesheet" href="vendor/leaflet/leaflet.css?v=9">
-  <link rel="stylesheet" href="css/style.css?v=11">
-  <link rel="stylesheet" href="css/shop.css?v=11">
+  <link rel="stylesheet" href="css/style.css?v=12">
+  <link rel="stylesheet" href="css/shop.css?v=12">
 </head>
-<body>
+<body class="has-home">
   <div id="app">
     <div id="map" role="application" tabindex="-1"></div>
 
@@ -136,17 +136,20 @@
         <a class="btn-link" id="rvNav" href="#" target="_blank" rel="noopener"><span id="rvNavLabel"></span></a>
       </div>
 
-      <a class="credit" id="credit" href="https://instagram.com/blaze.iq" target="_blank" rel="noopener">
-        <span class="credit-logo"><img src="assets/blaze.svg" alt="Blaze" width="20" height="23"></span>
-        <span class="credit-text" id="creditText"></span>
-        <span class="credit-btn" id="creditBtn"></span>
-      </a>
     </section>
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
   </div>
 
   <main class="home" id="home" hidden></main>
+
+  <footer class="site-foot" id="siteFoot">
+    <a class="credit" id="credit" href="https://instagram.com/blaze.iq" target="_blank" rel="noopener">
+      <span class="credit-logo"><img src="assets/blaze.svg" alt="Blaze" width="20" height="23"></span>
+      <span class="credit-text" id="creditText"></span>
+      <span class="credit-btn" id="creditBtn"></span>
+    </a>
+  </footer>
 
   <div id="loader" role="status">
     <img src="assets/logo.png" alt="" width="333" height="178">
@@ -172,8 +175,8 @@
   <script src="js/routes.js?v=9"></script>
   <script src="js/config.js?v=9"></script>
   <script src="js/app.js?v=9"></script>
-  <script src="js/invoice.js?v=11"></script>
-  <script src="js/shop.js?v=11"></script>
+  <script src="js/invoice.js?v=12"></script>
+  <script src="js/shop.js?v=12"></script>
   <script>Shop.mountHome(document.getElementById('home'));</script>
 </body>
 </html>

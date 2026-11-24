@@ -29,7 +29,7 @@
       tipWa: 'أرفق ملف الفاتورة في المحادثة لتأكيد أسرع.', tipIg: 'يُنسخ الطلب تلقائياً؛ الصقه في المحادثة.', igCopied: 'تم نسخ الطلب — الصقه في المحادثة',
       newOrder: 'إنهاء وطلب جديد', noChannel: 'لم يُضبط واتساب/إنستغرام للمتجر بعد. حمّل الفاتورة وتواصل معنا هاتفياً.', errGeneric: 'تعذّر إنشاء الطلب. حاول مرة أخرى.', offlineNote: 'لم يُحفظ الطلب في النظام (لا اتصال)، لكن الفاتورة جاهزة.',
       orderTitle: 'طلب جديد', name: 'الاسم', phone: 'الهاتف', addr: 'العنوان', products: 'المنتجات', totalL: 'الإجمالي', notes: 'ملاحظات', link: 'الرابط', mapLabel: 'الخريطة', pdfName: 'فاتورة', call: 'اتصل', orderNow: 'اطلب الآن',
-      ctaT: 'جاهز للطلب؟', ctaS: 'اختر منتجاتك وأرسل الطلب إلى الصيدلية مباشرة عبر واتساب أو إنستغرام مع فاتورة مرتبة.', cats: 'الأقسام', off: 'خصم', ph: 'الاسم' },
+      ctaT: 'جاهز للطلب؟', ctaS: 'اختر منتجاتك وأرسل الطلب إلى الصيدلية مباشرة عبر واتساب أو إنستغرام مع فاتورة مرتبة.', cats: 'الأقسام', off: 'خصم', ph: 'الاسم', topT: 'أفضل المنتجات', allBtn: 'عرض كل المنتجات', noRes: 'لا نتائج مطابقة', noResS: 'جرّب كلمات أخرى أو أعد ضبط التصفية.', rights: 'جميع الحقوق محفوظة' },
     en: { shop: 'Products & offers', browse: 'Browse products', all: 'All', search: 'Search products…', add: 'Add to cart', unavailable: 'Unavailable',
       cart: 'Shopping cart', total: 'Total', empty: 'Your cart is empty', clear: 'Clear cart', note: 'Order notes (optional)', none: 'No matching products.',
       close: 'Close', featuredT: 'Featured', offersT: 'Offers & discounts', allT: 'All products', viewAll: 'View all', viewCart: 'View cart', added: 'Added to cart',
@@ -41,7 +41,7 @@
       tipWa: 'Attach the invoice PDF in the chat for faster confirmation.', tipIg: 'The order is copied; paste it in the chat.', igCopied: 'Order copied — paste it in the chat',
       newOrder: 'Finish & start new order', noChannel: 'WhatsApp/Instagram are not set up yet. Download the invoice and call us.', errGeneric: 'Could not create the order. Please try again.', offlineNote: 'Order was not saved (offline), but your invoice is ready.',
       orderTitle: 'New order', name: 'Name', phone: 'Phone', addr: 'Address', products: 'Products', totalL: 'Total', notes: 'Notes', link: 'Link', mapLabel: 'Map', pdfName: 'invoice', call: 'Call', orderNow: 'Order now',
-      ctaT: 'Ready to order?', ctaS: 'Pick your products and send the order straight to the pharmacy on WhatsApp or Instagram, with a neat invoice.', cats: 'Categories', off: 'off', ph: 'Name' }
+      ctaT: 'Ready to order?', ctaS: 'Pick your products and send the order straight to the pharmacy on WhatsApp or Instagram, with a neat invoice.', cats: 'Categories', off: 'off', ph: 'Name', topT: 'Top products', allBtn: 'View all products', noRes: 'No matching results', noResS: 'Try other words or reset the filters.', rights: 'All rights reserved' }
   };
   function s(k) { return (STR[lang()] || STR.ar)[k] || STR.ar[k] || k; }
 
@@ -137,11 +137,21 @@
     sheet = h('div', { class: 'sh-sheet', role: 'dialog', 'aria-modal': 'true' });
     sheetBg = h('div', { class: 'sh-sheet-bg', hidden: true, onclick: function (e) { if (e.target === sheetBg) closeSheet(); } }, sheet);
     document.body.append(sheetBg);
+    var sy = 0, dy = 0, drag = false;
+    sheet.addEventListener('touchstart', function (e) { if (sheet.scrollTop <= 0 && e.touches.length === 1) { sy = e.touches[0].clientY; dy = 0; drag = true; } }, { passive: true });
+    sheet.addEventListener('touchmove', function (e) {
+      if (!drag) return; dy = e.touches[0].clientY - sy;
+      if (dy > 8) { sheet.style.transition = 'none'; sheet.style.transform = 'translateY(' + dy + 'px)'; } else if (dy < 0) { dy = 0; sheet.style.transform = ''; }
+    }, { passive: true });
+    sheet.addEventListener('touchend', function () {
+      if (!drag) return; drag = false; sheet.style.transition = 'transform .2s ease'; sheet.style.transform = '';
+      if (dy > 110) closeSheet();
+    }, { passive: true });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && sheetOpen) closeSheet(); });
     window.addEventListener('popstate', function () { if (sheetOpen && !(history.state && history.state.sheet)) hideSheet(); });
   }
   function showSheet(content) {
-    ensureSheet(); sheet.textContent = ''; sheet.append(content); sheet.scrollTop = 0; sheetBg.hidden = false; document.body.classList.add('sheet-open');
+    ensureSheet(); sheet.textContent = ''; sheet.append(h('div', { class: 'grab', 'aria-hidden': 'true' }), content); sheet.scrollTop = 0; sheetBg.hidden = false; document.body.classList.add('sheet-open');
     if (!sheetOpen) { sheetOpen = true; try { history.pushState({ sheet: 1 }, ''); } catch (e) {} }
     var f = sheet.querySelector('input, textarea'); if (f && matchMedia('(hover:hover)').matches) setTimeout(function () { f.focus({ preventScroll: true }); }, 40);
   }
@@ -152,7 +162,10 @@
   /* ---------- السلة ---------- */
   function addToCart(id, q) {
     var p = byId[id]; if (!p || !p.available) return;
-    cart[id] = Math.min(99, (cart[id] || 0) + q); saveCart(); track('cart_add', id); emit(); toast(s('added'), 1300);
+    var first = !cart[id];
+    cart[id] = Math.min(99, (cart[id] || 0) + q); saveCart(); track('cart_add', id); emit();
+    if (first) toast(s('added'), 1200);
+    var cp = document.getElementById('cartPill'); if (cp) { cp.classList.remove('bump'); void cp.offsetWidth; cp.classList.add('bump'); }
   }
   function setQty(id, q) { if (q <= 0) delete cart[id]; else cart[id] = Math.min(99, q); saveCart(); emit(); }
 
@@ -166,6 +179,7 @@
     [].forEach.call(document.querySelectorAll('[data-cart-count]'), function (b) { b.hidden = !n; b.textContent = loc(String(n)); });
     [].forEach.call(document.querySelectorAll('[data-cart-open]'), function (b) { b.setAttribute('aria-label', s('cart')); });
     var cp = document.getElementById('cartPill'); if (cp) cp.hidden = !n;
+    refreshCtls();
     ensureBar();
     if (bar) { bar.hidden = !n || sheetOpen; if (n) { bar.textContent = ''; bar.append(h('span', { class: 'cb-n' }, loc(String(n))), h('span', { class: 'cb-t' }, s('viewCart')), h('b', {}, money(cartTotal()))); } }
   }
@@ -179,27 +193,65 @@
   }
 
   /* ---------- بطاقة منتج ---------- */
+  var ctls = [];
+  function cardCtl(p, big) {
+    var box = h('div', { class: 'pctl' + (big ? ' big' : '') });
+    function draw() {
+      box.textContent = ''; var q = cart[p.id] || 0;
+      if (!p.available) { box.append(h('span', { class: 'poff' }, s('unavailable'))); return; }
+      if (!q) {
+        box.append(big
+          ? h('button', { class: 'btn-go', type: 'button', onclick: function () { addToCart(p.id, 1); } }, ico('bag'), s('add'))
+          : h('button', { class: 'padd', type: 'button', 'aria-label': s('add') + ': ' + nm(p), onclick: function () { addToCart(p.id, 1); } }, ico('plus')));
+      } else {
+        box.append(h('div', { class: 'mini-step' },
+          h('button', { type: 'button', 'aria-label': s('remove'), onclick: function () { setQty(p.id, (cart[p.id] || 0) - 1); } }, ico(q === 1 ? 'trash' : 'minus')),
+          h('output', { 'aria-live': 'polite' }, loc(String(q))),
+          h('button', { type: 'button', 'aria-label': s('add'), onclick: function () { addToCart(p.id, 1); } }, ico('plus'))));
+      }
+    }
+    draw(); ctls.push({ box: box, draw: draw, seen: false });
+    return box;
+  }
+  function refreshCtls() {
+    ctls = ctls.filter(function (c) { if (c.box.isConnected) { c.seen = true; c.draw(); return true; } return !c.seen; });
+  }
+  function pic(p, cls) {
+    var im = p.images[0] ? h('img', { src: img(p.images[0]), alt: '', loading: 'lazy', decoding: 'async', onload: function (e) { e.target.classList.add('ld'); } }) : h('span', { class: 'noimg' }, ico('img'));
+    return h('button', { class: cls || 'pimg', type: 'button', 'aria-label': nm(p), onclick: function () { openProduct(p.id); } }, im,
+      p.featured ? h('span', { class: 'pstar', title: s('featured') }, '★') : null,
+      discPct(p) ? h('span', { class: 'pdisc' }, '-' + loc(String(discPct(p))) + '٪') : null);
+  }
   function card(p, compact) {
     var d = discPct(p);
-    var pic = p.images[0] ? h('img', { src: img(p.images[0]), alt: '', loading: 'lazy', decoding: 'async' }) : h('span', { class: 'noimg' }, ico('img'));
     return h('article', { class: 'pcard' + (compact ? ' compact' : '') + (p.available ? '' : ' off') },
-      h('button', { class: 'pimg', type: 'button', 'aria-label': nm(p), onclick: function () { openProduct(p.id); } }, pic,
-        p.featured ? h('span', { class: 'pstar', title: s('featured') }, '★') : null,
-        d ? h('span', { class: 'pdisc' }, '-' + loc(String(d)) + '٪') : null),
+      pic(p),
       h('div', { class: 'pinfo' },
         h('button', { class: 'pname', type: 'button', onclick: function () { openProduct(p.id); } }, nm(p)),
         h('div', { class: 'pbottom' },
           h('div', { class: 'pprice' }, h('b', {}, money(p.price)), d ? h('s', {}, num(p.old_price)) : null),
-          p.available ? h('button', { class: 'padd', type: 'button', 'aria-label': s('add') + ': ' + nm(p), onclick: function () { addToCart(p.id, 1); } }, ico('plus'))
-                      : h('span', { class: 'poff' }, s('unavailable')))));
+          cardCtl(p))));
+  }
+  function slide(p) {
+    var d = discPct(p);
+    return h('article', { class: 'slide' + (p.available ? '' : ' off') },
+      pic(p, 'simg'),
+      h('div', { class: 'sinfo' },
+        h('button', { class: 'sname', type: 'button', onclick: function () { openProduct(p.id); } }, nm(p)),
+        ds(p) && ds(p).trim() ? h('p', { class: 'sdesc' }, ds(p)) : null,
+        h('div', { class: 'sprice' }, h('b', {}, money(p.price)), d ? h('s', {}, num(p.old_price)) : null),
+        cardCtl(p, true)));
   }
 
   function openProduct(id) {
     var p = byId[id]; if (!p) return; track('product', id);
     var q = 1, d = discPct(p);
-    var gallery = p.images.length
+    var gal = p.images.length
       ? h('div', { class: 'gallery', tabindex: '0' }, p.images.map(function (i) { return h('img', { src: img(i), alt: nm(p), loading: 'lazy' }); }))
       : h('div', { class: 'gallery none' }, h('span', { class: 'noimg' }, ico('img')));
+    var counter = p.images.length > 1 ? h('span', { class: 'gal-n' }, loc('1 / ' + p.images.length)) : null;
+    if (counter) gal.addEventListener('scroll', function () { var i = Math.round(Math.abs(gal.scrollLeft) / gal.clientWidth); counter.textContent = loc((i + 1) + ' / ' + p.images.length); }, { passive: true });
+    var gallery = h('div', { class: 'gal-wrap' }, gal, counter);
     var addBtn = h('button', { type: 'button', class: 'btn-go', onclick: function () { addToCart(id, q); closeSheet(); } });
     var upd = function () { addBtn.textContent = s('add') + ' · ' + money(p.price * q); }; upd();
     showSheet(h('div', { class: 'pd' },
@@ -376,37 +428,70 @@
   }
 
   /* ==================== الصفحة الرئيسية: قسم المنتجات تحت الخريطة ==================== */
+  function footer(root, withCredit) {
+    var c = contact(), yr = loc(String(new Date().getFullYear()));
+    var box = root.querySelector('.foot-contact'), nm1 = root.querySelector('.foot-name');
+    if (!box) { box = h('div', { class: 'foot-contact' }); nm1 = h('p', { class: 'foot-name' }); root.prepend(box, nm1); }
+    box.textContent = '';
+    if (c.wa) box.append(h('a', { class: 'cta-ic wa', href: 'https://wa.me/' + c.wa, target: '_blank', rel: 'noopener', 'aria-label': 'WhatsApp' }, ico('wa')));
+    if (c.ig) box.append(h('a', { class: 'cta-ic ig', href: 'https://instagram.com/' + c.ig, target: '_blank', rel: 'noopener', 'aria-label': 'Instagram' }, ico('ig')));
+    if (c.phone) box.append(h('a', { class: 'cta-ic', href: 'tel:' + c.phone, 'aria-label': s('call') }, ico('phone')));
+    nm1.textContent = '© ' + yr + ' ' + c.name;
+    if (withCredit && !root.querySelector('.credit')) {
+      var ui_ = (CFG.ui && CFG.ui[lang()]) || {};
+      root.append(h('a', { class: 'credit', href: 'https://instagram.com/blaze.iq', target: '_blank', rel: 'noopener' },
+        h('span', { class: 'credit-logo' }, h('img', { src: '/assets/blaze.svg', alt: 'Blaze', width: '20', height: '23' })),
+        h('span', { class: 'credit-text' }, ui_.creditText || 'Get a map for your business with Blaze'),
+        h('span', { class: 'credit-btn' }, ui_.creditBtn || 'Create yours')));
+    } else if (withCredit) {
+      var ui2 = (CFG.ui && CFG.ui[lang()]) || {};
+      root.querySelector('.credit-text').textContent = ui2.creditText || ''; root.querySelector('.credit-btn').textContent = ui2.creditBtn || '';
+    }
+  }
+
   function mountHome(root) {
+    var foot = document.getElementById('siteFoot'), timer = null, reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function top3() {
+      var av = data.products.filter(function (p) { return p.available; });
+      var f = av.filter(function (p) { return p.featured; }), r = av.filter(function (p) { return !p.featured; });
+      return f.concat(r).slice(0, 3);
+    }
     function render() {
+      clearInterval(timer);
+      if (foot) footer(foot, false);
       if (!data || !data.products.length) { root.hidden = true; return; }
-      var c = contact(), cats = mainCats(), shown = data.products.slice(0, 6);
+      var list = top3(); if (!list.length) list = data.products.slice(0, 3);
       root.hidden = false; root.textContent = '';
-      if (!document.body.classList.contains('has-home')) { document.body.classList.add('has-home'); window.dispatchEvent(new Event('resize')); }
-      root.append(
-        h('div', { class: 'home-in' },
-          h('h2', { class: 'home-t' }, s('shop')),
-          cats.length ? h('nav', { class: 'catrow', 'aria-label': s('cats') }, cats.map(function (k) { return h('a', { class: 'catchip', href: '/shop/?c=' + k.id }, nm(k)); })) : null,
-          h('div', { class: 'pgrid' }, shown.map(function (p) { return card(p, false); })),
-          h('a', { class: 'btn-go home-all', href: '/shop/' }, s('viewAll') + ' (' + loc(String(data.products.length)) + ')'),
-          h('div', { class: 'home-contact' },
-            c.wa ? h('a', { class: 'cta-ic wa', href: 'https://wa.me/' + c.wa, target: '_blank', rel: 'noopener', 'aria-label': 'WhatsApp' }, ico('wa')) : null,
-            c.ig ? h('a', { class: 'cta-ic ig', href: 'https://instagram.com/' + c.ig, target: '_blank', rel: 'noopener', 'aria-label': 'Instagram' }, ico('ig')) : null,
-            c.phone ? h('a', { class: 'cta-ic', href: 'tel:' + c.phone, 'aria-label': s('call') }, ico('phone')) : null)));
+      var track = h('div', { class: 'car-track n' + list.length, tabindex: '0', role: 'group', 'aria-roledescription': 'carousel', 'aria-label': s('topT') }, list.map(slide));
+      var dots = h('div', { class: 'dots', role: 'tablist' });
+      var cur = 0, rtl = function () { return getComputedStyle(track).direction === 'rtl'; };
+      function step() { var a = track.children[0], b = track.children[1]; return b ? Math.abs(b.offsetLeft - a.offsetLeft) : track.clientWidth; }
+      function go(i, smooth) { cur = i; var x = i * step(); track.scrollTo({ left: rtl() ? -x : x, behavior: smooth && !reduce ? 'smooth' : 'auto' }); paint(); }
+      function paint() { [].forEach.call(dots.children, function (d, k) { d.className = k === cur ? 'on' : ''; d.setAttribute('aria-selected', k === cur ? 'true' : 'false'); }); }
+      list.forEach(function (_, i) { dots.append(h('button', { type: 'button', role: 'tab', 'aria-label': loc(String(i + 1)), onclick: function () { pause(); go(i, true); } })); });
+      var settle; track.addEventListener('scroll', function () { clearTimeout(settle); settle = setTimeout(function () { var i = Math.round(Math.abs(track.scrollLeft) / (step() || 1)); if (i !== cur) { cur = Math.max(0, Math.min(list.length - 1, i)); paint(); } }, 60); }, { passive: true });
+      var paused = false, resume;
+      function pause() { paused = true; clearTimeout(resume); resume = setTimeout(function () { paused = false; }, 9000); }
+      ['touchstart', 'pointerdown', 'focusin', 'mouseenter'].forEach(function (ev) { track.addEventListener(ev, pause, { passive: true }); });
+      if (list.length > 1 && !reduce) timer = setInterval(function () {
+        if (paused || document.hidden || sheetOpen || getComputedStyle(dots).display === 'none') return;
+        var r = track.getBoundingClientRect(); if (r.bottom < 0 || r.top > innerHeight) return;
+        go((cur + 1) % list.length, true);
+      }, 5000);
+      root.append(h('div', { class: 'home-in' },
+        h('div', { class: 'home-head' }, h('h2', {}, '★ ' + s('topT')), h('a', { class: 'home-link', href: '/shop/' }, s('viewAll'), ico('back'))),
+        h('div', { class: 'car' }, track), list.length > 1 ? dots : null,
+        h('a', { class: 'btn-go home-all', href: '/shop/' }, ico('bag'), s('allBtn') + ' (' + loc(String(data.products.length)) + ')')));
+      paint();
     }
-    onChange(render);
-    document.addEventListener('sitelangchange', function () { render(); updateCartUI(); });
-    var btn = document.getElementById('shopBtn');
-    function wire() {
-      if (!btn) return;
-      btn.hidden = !(data && data.products.length);
-      document.getElementById('shopLabel').textContent = s('browse');
-      btn.onclick = function () { root.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }); };
-      var b = document.getElementById('shopCount'); if (b) b.hidden = true;
-    }
-    onChange(wire);
-    document.addEventListener('sitelangchange', wire);
+    document.addEventListener('sitelangchange', function () { if (data) render(); else if (foot) footer(foot, false); updateCartUI(); });
+    if (foot) footer(foot, false);
     bindCartButtons();
-    load().then(function () { render(); wire(); emit(); });
+    try { if (localStorage.getItem('hp') === '1') { root.hidden = false; root.append(h('div', { class: 'home-in' }, h('div', { class: 'skel-t' }), h('div', { class: 'skel-c' }))); } } catch (e) {}
+    load().then(function (d) {
+      try { localStorage.setItem('hp', d && d.products.length ? '1' : '0'); } catch (e) {}
+      render(); emit();
+    });
   }
 
   /* ==================== صفحة /shop/ ==================== */
@@ -482,17 +567,23 @@
       var list = filtered();
       els.count.textContent = loc(String(list.length)) + ' ' + s('results');
       els.body.textContent = '';
-      if (!list.length) { els.body.append(h('div', { class: 'sh-empty' }, s('none'))); return; }
+      if (!list.length) {
+        els.body.append(h('div', { class: 'sh-empty big' }, h('span', { class: 'sh-empty-ic' }, ico('search')), h('b', {}, s('noRes')), h('p', {}, s('noResS')),
+          h('button', { class: 'btn-soft', type: 'button', onclick: function () { els.reset.click(); } }, s('reset'))));
+        return;
+      }
       els.body.append(h('div', { class: 'pgrid' }, list.map(function (p) { return card(p, false); })));
     }
-    function renderAll() { if (!data) return; applyLang(); syncControls(); renderChips(); renderBody(); updateCartUI(); }
+    function renderAll() { if (!data) return; applyLang(); syncControls(); renderChips(); renderBody(); updateCartUI(); footer(foot, true); }
 
     applyLang(); syncControls();
-    els.body.append(h('div', { class: 'sh-empty' }, '…'));
+    els.body.append(h('div', { class: 'pgrid' }, [1, 2, 3, 4, 5, 6].map(function () { return h('div', { class: 'pcard skel' }, h('div', { class: 'pimg' }), h('div', { class: 'pinfo' }, h('i', {}), h('i', { class: 's' }))); })));
+    var foot = h('footer', { class: 'site-foot', id: 'siteFoot' }); root.append(foot); footer(foot, true);
     bindCartButtons();
     onChange(function () {});
     load().then(function (d) {
       if (!d) { els.body.textContent = ''; els.body.append(h('div', { class: 'sh-empty' }, s('errGeneric'))); return; }
+      footer(foot, true);
       renderAll(); emit();
       if (openId && byId[openId]) openProduct(openId);
     });
